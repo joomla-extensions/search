@@ -7,14 +7,18 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Component\Search\Administrator\Controller;
+
 defined('_JEXEC') or die;
+
+use Joomla\CMS\MVC\Controller\BaseController;
 
 /**
  * Methods supporting a list of search terms.
  *
  * @since  1.6
  */
-class SearchControllerSearches extends JControllerLegacy
+class SearchesController extends BaseController
 {
 	/**
 	 * Method to reset the search log table.
@@ -30,7 +34,7 @@ class SearchControllerSearches extends JControllerLegacy
 
 		if (!$model->reset())
 		{
-			JError::raiseWarning(500, $model->getError());
+			$this->app->enqueueMessage($model->getError(), 'error');
 		}
 
 		$this->setRedirect('index.php?option=com_search&view=searches');

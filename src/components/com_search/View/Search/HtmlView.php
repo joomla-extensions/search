@@ -7,8 +7,16 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Component\Search\Site\View\Search;
+
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Uri\Uri;
+use Joomla\Component\Search\Administrator\Helper\SearchHelper;
 use Joomla\String\StringHelper;
 
 /**
@@ -16,8 +24,113 @@ use Joomla\String\StringHelper;
  *
  * @since  1.0
  */
-class SearchViewSearch extends JViewLegacy
+class HtmlView extends BaseHtmlView
 {
+	/**
+	 * The page class suffix
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $pageclass_sfx = '';
+
+	/**
+	 * The pagination object
+	 *
+	 * @var    \Joomla\CMS\Pagination\Pagination|null
+	 * @since  4.0.0
+	 */
+	protected $pagination = null;
+
+	/**
+	 * The results of the search
+	 *
+	 * @var    array
+	 * @since  4.0.0
+	 */
+	protected $results = array();
+
+	/**
+	 * The select box lists for result filtering
+	 *
+	 * @var    array
+	 * @since  4.0.0
+	 */
+	protected $lists = array();
+
+	/**
+	 * The page parameters
+	 *
+	 * @var  \Joomla\Registry\Registry|null
+	 * @since  4.0.0
+	 */
+	protected $params = null;
+
+	/**
+	 * The ordering for the query
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $ordering = '';
+
+	/**
+	 * The search phrase used (after sanity checks)
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $searchword = '';
+
+	/**
+	 * The raw search phrase used (before sanity checks)
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $origkeyword = '';
+
+	/**
+	 * The search phrase matching preference
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $searchphrase = '';
+
+	/**
+	 * The available search 'areas' (plugins that are enabled to search). Key of the array should be the name used
+	 * for the filter options and the value should be the language constant to be used for translation.
+	 *
+	 * @var    array
+	 * @since  4.0.0
+	 */
+	protected $searchareas = '';
+
+	/**
+	 * The total number of results for the search query
+	 *
+	 * @var    integer
+	 * @since  4.0.0
+	 */
+	protected $total = 0;
+
+	/**
+	 * A translated error message to display to the user
+	 *
+	 * @var    string
+	 * @since  4.0.0
+	 */
+	protected $error = '';
+
+	/**
+	 * The URL instance
+	 *
+	 * @var    Uri|null
+	 * @since  4.0.0
+	 */
+	protected $action = null;
+
 	/**
 	 * Execute and display a template script.
 	 *
@@ -29,10 +142,8 @@ class SearchViewSearch extends JViewLegacy
 	 */
 	public function display($tpl = null)
 	{
-		JLoader::register('SearchHelper', JPATH_COMPONENT_ADMINISTRATOR . '/helpers/search.php');
-
-		$app     = JFactory::getApplication();
-		$uri     = JUri::getInstance();
+		$app     = Factory::getApplication();
+		$uri     = Uri::getInstance();
 		$error   = null;
 		$results = null;
 		$total   = 0;
@@ -43,20 +154,22 @@ class SearchViewSearch extends JViewLegacy
 		$searchWord = $state->get('keyword');
 		$params     = $app->getParams();
 
-		if (!$app->getMenu()->getActive())
+		$menu  = $app->getMenu()->getActive();
+
+		if (!$menu)
 		{
-			$params->set('page_title', JText::_('COM_SEARCH_SEARCH'));
+			$params->set('page_title', Text::_('COM_SEARCH_SEARCH'));
 		}
 
 		$title = $params->get('page_title');
 
 		if ($app->get('sitename_pagetitles', 0) == 1)
 		{
-			$title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
+			$title = Text::sprintf('JPAGETITLE', $app->get('sitename'), $title);
 		}
 		elseif ($app->get('sitename_pagetitles', 0) == 2)
 		{
-			$title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
+			$title = Text::sprintf('JPAGETITLE', $title, $app->get('sitename'));
 		}
 
 		$this->document->setTitle($title);
@@ -68,53 +181,53 @@ class SearchViewSearch extends JViewLegacy
 
 		if ($params->get('menu-meta_keywords'))
 		{
-			$this->document->setMetadata('keywords', $params->get('menu-meta_keywords'));
+			$this->document->setMetaData('keywords', $params->get('menu-meta_keywords'));
 		}
 
 		if ($params->get('robots'))
 		{
-			$this->document->setMetadata('robots', $params->get('robots'));
+			$this->document->setMetaData('robots', $params->get('robots'));
 		}
 
 		// Built select lists
 		$orders   = array();
-		$orders[] = JHtml::_('select.option', 'newest', JText::_('COM_SEARCH_NEWEST_FIRST'));
-		$orders[] = JHtml::_('select.option', 'oldest', JText::_('COM_SEARCH_OLDEST_FIRST'));
-		$orders[] = JHtml::_('select.option', 'popular', JText::_('COM_SEARCH_MOST_POPULAR'));
-		$orders[] = JHtml::_('select.option', 'alpha', JText::_('COM_SEARCH_ALPHABETICAL'));
-		$orders[] = JHtml::_('select.option', 'category', JText::_('JCATEGORY'));
+		$orders[] = HTMLHelper::_('select.option', 'newest', Text::_('COM_SEARCH_NEWEST_FIRST'));
+		$orders[] = HTMLHelper::_('select.option', 'oldest', Text::_('COM_SEARCH_OLDEST_FIRST'));
+		$orders[] = HTMLHelper::_('select.option', 'popular', Text::_('COM_SEARCH_MOST_POPULAR'));
+		$orders[] = HTMLHelper::_('select.option', 'alpha', Text::_('COM_SEARCH_ALPHABETICAL'));
+		$orders[] = HTMLHelper::_('select.option', 'category', Text::_('JCATEGORY'));
 
 		$lists             = array();
-		$lists['ordering'] = JHtml::_('select.genericlist', $orders, 'ordering', 'class="inputbox"', 'value', 'text', $state->get('ordering'));
+		$lists['ordering'] = HTMLHelper::_('select.genericlist', $orders, 'ordering', 'class="custom-select"', 'value', 'text', $state->get('ordering'));
 
 		$searchphrases         = array();
-		$searchphrases[]       = JHtml::_('select.option', 'all', JText::_('COM_SEARCH_ALL_WORDS'));
-		$searchphrases[]       = JHtml::_('select.option', 'any', JText::_('COM_SEARCH_ANY_WORDS'));
-		$searchphrases[]       = JHtml::_('select.option', 'exact', JText::_('COM_SEARCH_EXACT_PHRASE'));
-		$lists['searchphrase'] = JHtml::_('select.radiolist', $searchphrases, 'searchphrase', '', 'value', 'text', $state->get('match'));
+		$searchphrases[]       = HTMLHelper::_('select.option', 'all', Text::_('COM_SEARCH_ALL_WORDS'));
+		$searchphrases[]       = HTMLHelper::_('select.option', 'any', Text::_('COM_SEARCH_ANY_WORDS'));
+		$searchphrases[]       = HTMLHelper::_('select.option', 'exact', Text::_('COM_SEARCH_EXACT_PHRASE'));
+		$lists['searchphrase'] = HTMLHelper::_('select.radiolist', $searchphrases, 'searchphrase', '', 'value', 'text', $state->get('match'));
 
 		// Log the search
 		\Joomla\CMS\Helper\SearchHelper::logSearch($searchWord, 'com_search');
 
 		// Limit search-word
-		$lang        = JFactory::getLanguage();
+		$lang        = Factory::getLanguage();
 		$upper_limit = $lang->getUpperLimitSearchWord();
 		$lower_limit = $lang->getLowerLimitSearchWord();
 
 		if (SearchHelper::limitSearchWord($searchWord))
 		{
-			$error = JText::sprintf('COM_SEARCH_ERROR_SEARCH_MESSAGE', $lower_limit, $upper_limit);
+			$error = Text::sprintf('COM_SEARCH_ERROR_SEARCH_MESSAGE', $lower_limit, $upper_limit);
 		}
 
 		// Sanitise search-word
 		if (SearchHelper::santiseSearchWord($searchWord, $state->get('match')))
 		{
-			$error = JText::_('COM_SEARCH_ERROR_IGNOREKEYWORD');
+			$error = Text::_('COM_SEARCH_ERROR_IGNOREKEYWORD');
 		}
 
 		if (!$searchWord && !empty($this->input) && count($this->input->post))
 		{
-			// $error = JText::_('COM_SEARCH_ERROR_ENTERKEYWORD');
+			// $error = Text::_('COM_SEARCH_ERROR_ENTERKEYWORD');
 		}
 
 		// Put the filtered results back into the model
@@ -142,7 +255,7 @@ class SearchViewSearch extends JViewLegacy
 				$needle      = $searchWords[0];
 			}
 
-			JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
+			\JLoader::register('ContentHelperRoute', \JPATH_SITE . '/components/com_content/helpers/route.php');
 
 			// Make sure there are no slashes in the needle
 			$needle = str_replace('/', '\/', $needle);
@@ -159,22 +272,20 @@ class SearchViewSearch extends JViewLegacy
 
 				if ($result->created)
 				{
-					$created = JHtml::_('date', $result->created, JText::_('DATE_FORMAT_LC3'));
+					$created = HTMLHelper::_('date', $result->created, Text::_('DATE_FORMAT_LC3'));
 				}
 
 				$result->title   = $rowTitleHighLighted;
-				$result->text    = JHtml::_('content.prepare', $rowTextHighLighted, '', 'com_search.search');
+				$result->text    = HTMLHelper::_('content.prepare', $rowTextHighLighted, '', 'com_search.search');
 				$result->created = $created;
 				$result->count   = $i + 1;
 			}
 		}
 
 		// Check for layout override
-		$active = JFactory::getApplication()->getMenu()->getActive();
-
-		if (isset($active->query['layout']))
+		if (isset($menu->query['layout']))
 		{
-			$this->setLayout($active->query['layout']);
+			$this->setLayout($menu->query['layout']);
 		}
 
 		// Escape strings for HTML output
@@ -200,7 +311,7 @@ class SearchViewSearch extends JViewLegacy
 	 *
 	 * @param   string  $string       text to be searched
 	 * @param   string  $needle       text to search for
-	 * @param   string  $searchWords  words to be searched  
+	 * @param   array   $searchWords  words to be searched
 	 *
 	 * @return  mixed  A string.
 	 *

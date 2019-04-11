@@ -7,22 +7,28 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Component\Search\Site\Controller;
+
 defined('_JEXEC') or die;
+
+use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 
 /**
  * Search Component Controller
  *
  * @since  1.5
  */
-class SearchController extends JControllerLegacy
+class DisplayController extends BaseController
 {
 	/**
 	 * Method to display a view.
 	 *
 	 * @param   bool  $cachable   If true, the view output will be cached
-	 * @param   bool  $urlparams  An array of safe URL parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 * @param   bool  $urlparams  An array of safe URL parameters and their variable types, for valid values see {@link \JFilterInput::clean()}.
 	 *
-	 * @return  JControllerLegacy This object to support chaining.
+	 * @return  static This object to support chaining.
 	 *
 	 * @since   1.5
 	 */
@@ -39,7 +45,7 @@ class SearchController extends JControllerLegacy
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function search()
 	{
@@ -73,7 +79,7 @@ class SearchController extends JControllerLegacy
 		{
 			foreach ($areas as $area)
 			{
-				$post['areas'][] = JFilterInput::getInstance()->clean($area, 'cmd');
+				$post['areas'][] = \JFilterInput::getInstance()->clean($area, 'cmd');
 			}
 		}
 
@@ -81,8 +87,7 @@ class SearchController extends JControllerLegacy
 		$post['Itemid'] = $this->input->getInt('Itemid');
 
 		// Set Itemid id for links from menu
-		$app  = JFactory::getApplication();
-		$menu = $app->getMenu();
+		$menu = $this->app->getMenu();
 		$item = $menu->getItem($post['Itemid']);
 
 		// The requested Item is not a search page so we need to find one
@@ -100,10 +105,10 @@ class SearchController extends JControllerLegacy
 
 		unset($post['task'], $post['submit']);
 
-		$uri = JUri::getInstance();
+		$uri = Uri::getInstance();
 		$uri->setQuery($post);
 		$uri->setVar('option', 'com_search');
 
-		$this->setRedirect(JRoute::_('index.php' . $uri->toString(array('query', 'fragment')), false));
+		$this->setRedirect(Route::_('index.php' . $uri->toString(array('query', 'fragment')), false));
 	}
 }

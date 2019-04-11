@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @package     Joomla.Plugin
  * @subpackage  Search.tags
@@ -9,12 +8,17 @@
  */
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Multilanguage;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\CMSPlugin;
+
 /**
  * Tags search plugin.
  *
  * @since  3.3
  */
-class PlgSearchTags extends JPlugin
+class PlgSearchTags extends CMSPlugin
 {
 	/**
 	 * Load the language file on instantiation.
@@ -57,13 +61,13 @@ class PlgSearchTags extends JPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db    = JFactory::getDbo();
+		$db    = Factory::getDbo();
 		$query = $db->getQuery(true);
-		$app   = JFactory::getApplication();
-		$user  = JFactory::getUser();
-		$lang  = JFactory::getLanguage();
+		$app   = Factory::getApplication();
+		$user  = Factory::getUser();
+		$lang  = Factory::getLanguage();
 
-		$section = JText::_('PLG_SEARCH_TAGS_TAGS');
+		$section = Text::_('PLG_SEARCH_TAGS_TAGS');
 		$limit   = $this->params->def('search_limit', 50);
 
 		if (is_array($areas) && !array_intersect($areas, array_keys($this->onContentSearchAreas())))
@@ -118,7 +122,7 @@ class PlgSearchTags extends JPlugin
 
 		$query->where('(a.title LIKE ' . $text . ' OR a.alias LIKE ' . $text . ')');
 
-		$query->where($db->qn('a.published') . ' = 1');
+		$query->where($db->quoteName('a.published') . ' = 1');
 
 		if (!$user->authorise('core.admin'))
 		{
@@ -126,9 +130,9 @@ class PlgSearchTags extends JPlugin
 			$query->where('a.access IN (' . $groups . ')');
 		}
 
-		if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$tag = JFactory::getLanguage()->getTag();
+			$tag = Factory::getLanguage()->getTag();
 			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
 		}
 
@@ -143,7 +147,7 @@ class PlgSearchTags extends JPlugin
 		catch (RuntimeException $e)
 		{
 			$rows = array();
-			JFactory::getApplication()->enqueueMessage(JText::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 		}
 
 		if ($rows)
@@ -168,8 +172,8 @@ class PlgSearchTags extends JPlugin
 		else
 		{
 			$final_items = $rows;
-			JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_tags/models');
-			$tag_model = JModelLegacy::getInstance('Tag', 'TagsModel');
+			$tag_model   = Factory::getApplication()->bootComponent('com_tags')
+				->getMVCFactory()->createModel('Tag', 'Site');
 			$tag_model->getState();
 
 			foreach ($rows as $key => $row)
@@ -198,11 +202,11 @@ class PlgSearchTags extends JPlugin
 
 						if ($lang->hasKey($type))
 						{
-							$new_item->section = JText::sprintf('PLG_SEARCH_TAGS_ITEM_TAGGED_WITH', JText::_($type), $row->title);
+							$new_item->section = Text::sprintf('PLG_SEARCH_TAGS_ITEM_TAGGED_WITH', Text::_($type), $row->title);
 						}
 						else
 						{
-							$new_item->section = JText::sprintf('PLG_SEARCH_TAGS_ITEM_TAGGED_WITH', $item->content_type_title, $row->title);
+							$new_item->section = Text::sprintf('PLG_SEARCH_TAGS_ITEM_TAGGED_WITH', $item->content_type_title, $row->title);
 						}
 
 						$new_item->created    = $item->displayDate;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.1" method="upgrade">
+<extension type="component" version="4.0" method="upgrade">
 	<name>com_search</name>
 	<author>Joomla! Project</author>
 	<creationDate>April 2006</creationDate>
@@ -7,27 +7,33 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.0.0</version>
+	<version>4.0.0</version>
 	<description>COM_SEARCH_XML_DESCRIPTION</description>
+	<namespace>Joomla\Component\Search</namespace>
 	<files folder="site">
-		<filename>controller.php</filename>
-		<filename>router.php</filename>
-		<filename>search.php</filename>
-		<folder>models</folder>
-		<folder>views</folder>
+		<filename>router.php</filename>		
+		<folder>Controller</folder>
+		<folder>Model</folder>
+		<folder>tmpl</folder>
+		<folder>View</folder>
 	</files>
 	<languages folder="site">
 		<language tag="en-GB">language/en-GB.com_search.ini</language>
 	</languages>
 	<administration>
-		<menu link="option=com_search" img="class:search">Search</menu>
+		<menu link="option=com_search">Search</menu>
 		<files folder="admin">
+			<filename>access.xml</filename>
 			<filename>config.xml</filename>
-			<filename>controller.php</filename>
-			<filename>search.php</filename>
-			<folder>controllers</folder>
+			<filename>search.xml</filename>
+			<folder>Controller</folder>
+			<folder>forms</folder>
+			<folder>Helper</folder>
 			<folder>helpers</folder>
-			<folder>models</folder>
+			<folder>Model</folder>
+			<folder>services</folder>
+			<folder>tmpl</folder>
+			<folder>View</folder>
 			<folder>views</folder>
 		</files>
 		<languages folder="admin">

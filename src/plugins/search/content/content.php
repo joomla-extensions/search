@@ -9,12 +9,19 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Multilanguage;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
+use Joomla\Component\Search\Administrator\Helper\SearchHelper;
+
 /**
  * Content search plugin.
  *
  * @since  1.6
  */
-class PlgSearchContent extends JPlugin
+class PlgSearchContent extends CMSPlugin
 {
 	/**
 	 * Determine areas searchable by this plugin.
@@ -48,15 +55,14 @@ class PlgSearchContent extends JPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db         = JFactory::getDbo();
+		$db         = Factory::getDbo();
 		$serverType = $db->getServerType();
-		$app        = JFactory::getApplication();
-		$user       = JFactory::getUser();
+		$app        = Factory::getApplication();
+		$user       = Factory::getUser();
 		$groups     = implode(',', $user->getAuthorisedViewLevels());
-		$tag        = JFactory::getLanguage()->getTag();
+		$tag        = Factory::getLanguage()->getTag();
 
 		JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
-		JLoader::register('SearchHelper', JPATH_ADMINISTRATOR . '/components/com_search/helpers/search.php');
 
 		$searchText = $text;
 
@@ -70,7 +76,7 @@ class PlgSearchContent extends JPlugin
 		$limit     = $this->params->def('search_limit', 50);
 
 		$nullDate  = $db->getNullDate();
-		$date      = JFactory::getDate();
+		$date      = Factory::getDate();
 		$now       = $date->toSql();
 
 		$text = trim($text);
@@ -98,13 +104,13 @@ class PlgSearchContent extends JPlugin
 				$subQuery->select("cfv.item_id")
 					->from("#__fields_values AS cfv")
 					->join('LEFT', '#__fields AS f ON f.id = cfv.field_id')
-					->where('(f.context IS NULL OR f.context = ' . $db->q('com_content.article') . ')')
+					->where('(f.context IS NULL OR f.context = ' . $db->quote('com_content.article') . ')')
 					->where('(f.state IS NULL OR f.state = 1)')
 					->where('(f.access IS NULL OR f.access IN (' . $groups . '))')
 					->where('cfv.value LIKE ' . $text);
 
 				// Filter by language.
-				if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+				if ($app->isClient('site') && Multilanguage::isEnabled())
 				{
 					$subQuery->where('(f.language IS NULL OR f.language in (' . $db->quote($tag) . ',' . $db->quote('*') . '))');
 				}
@@ -157,13 +163,13 @@ class PlgSearchContent extends JPlugin
 						$subQuery->select("cfv.item_id")
 							->from("#__fields_values AS cfv")
 							->join('LEFT', '#__fields AS f ON f.id = cfv.field_id')
-							->where('(f.context IS NULL OR f.context = ' . $db->q('com_content.article') . ')')
+							->where('(f.context IS NULL OR f.context = ' . $db->quote('com_content.article') . ')')
 							->where('(f.state IS NULL OR f.state = 1)')
 							->where('(f.access IS NULL OR f.access IN (' . $groups . '))')
 							->where('LOWER(cfv.value) LIKE LOWER(' . $word . ')');
 
 						// Filter by language.
-						if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+						if ($app->isClient('site') && Multilanguage::isEnabled())
 						{
 							$subQuery->where('(f.language IS NULL OR f.language in (' . $db->quote($tag) . ',' . $db->quote('*') . '))');
 						}
@@ -198,13 +204,13 @@ class PlgSearchContent extends JPlugin
 					$subQuery->select("cfv.item_id")
 						->from("#__fields_values AS cfv")
 						->join('LEFT', '#__fields AS f ON f.id = cfv.field_id')
-						->where('(f.context IS NULL OR f.context = ' . $db->q('com_content.article') . ')')
+						->where('(f.context IS NULL OR f.context = ' . $db->quote('com_content.article') . ')')
 						->where('(f.state IS NULL OR f.state = 1)')
 						->where('(f.access IS NULL OR f.access IN (' . $groups . '))')
 						->where('(' . implode(($phrase === 'all' ? ') AND (' : ') OR ('), $cfwhere) . ')');
 
 					// Filter by language.
-					if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+					if ($app->isClient('site') && Multilanguage::isEnabled())
 					{
 						$subQuery->where('(f.language IS NULL OR f.language in (' . $db->quote($tag) . ',' . $db->quote('*') . '))');
 					}
@@ -261,22 +267,13 @@ class PlgSearchContent extends JPlugin
 		{
 			$query->clear();
 
-			// SQLSRV changes.
-			$case_when  = ' CASE WHEN ';
-			$case_when .= $query->charLength('a.alias', '!=', '0');
-			$case_when .= ' THEN ';
-			$a_id       = $query->castAsChar('a.id');
-			$case_when .= $query->concatenate(array($a_id, 'a.alias'), ':');
-			$case_when .= ' ELSE ';
-			$case_when .= $a_id . ' END as slug';
+			$case_when = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
+				. ' THEN ' . $query->concatenate(array($query->castAsChar('a.id'), 'a.alias'), ':')
+				. ' ELSE ' . $query->castAsChar('a.id') . ' END AS slug';
 
-			$case_when1  = ' CASE WHEN ';
-			$case_when1 .= $query->charLength('c.alias', '!=', '0');
-			$case_when1 .= ' THEN ';
-			$c_id        = $query->castAsChar('c.id');
-			$case_when1 .= $query->concatenate(array($c_id, 'c.alias'), ':');
-			$case_when1 .= ' ELSE ';
-			$case_when1 .= $c_id . ' END as catslug';
+			$case_when1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
+				. ' THEN ' . $query->concatenate(array($query->castAsChar('c.id'), 'c.alias'), ':')
+				. ' ELSE ' . $query->castAsChar('c.id') . ' END AS catslug';
 
 			if (!empty($relevance))
 			{
@@ -286,11 +283,15 @@ class PlgSearchContent extends JPlugin
 
 			$query->select('a.title AS title, a.metadesc, a.metakey, a.created AS created, a.language, a.catid')
 				->select($query->concatenate(array('a.introtext', 'a.fulltext')) . ' AS text')
-				->select('c.title AS section, ' . $case_when . ',' . $case_when1 . ', ' . '\'2\' AS browsernav')
-				->from('#__content AS a')
-				->join('INNER', '#__categories AS c ON c.id=a.catid')
+				->select('c.title AS section')
+				->select($case_when)
+				->select($case_when1)
+				->select($db->quote('2') . ' AS browsernav')
+				->from($db->quoteName('#__content', 'a'))
+				->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid')
+				->join('LEFT', '#__workflow_stages AS ws ON ws.id = state')
 				->where(
-					'(' . $where . ') AND a.state=1 AND c.published = 1 AND a.access IN (' . $groups . ') '
+					'(' . $where . ') AND ws.condition=1 AND c.published = 1 AND a.access IN (' . $groups . ') '
 						. 'AND c.access IN (' . $groups . ')'
 						. 'AND (a.publish_up = ' . $db->quote($nullDate) . ' OR a.publish_up <= ' . $db->quote($now) . ') '
 						. 'AND (a.publish_down = ' . $db->quote($nullDate) . ' OR a.publish_down >= ' . $db->quote($now) . ')'
@@ -299,7 +300,7 @@ class PlgSearchContent extends JPlugin
 				->order($order);
 
 			// Filter by language.
-			if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+			if ($app->isClient('site') && Multilanguage::isEnabled())
 			{
 				$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
 					->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
@@ -314,7 +315,7 @@ class PlgSearchContent extends JPlugin
 			catch (RuntimeException $e)
 			{
 				$list = array();
-				JFactory::getApplication()->enqueueMessage(JText::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+				Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 			}
 
 			$limit -= count($list);
@@ -335,22 +336,13 @@ class PlgSearchContent extends JPlugin
 		{
 			$query->clear();
 
-			// SQLSRV changes.
-			$case_when  = ' CASE WHEN ';
-			$case_when .= $query->charLength('a.alias', '!=', '0');
-			$case_when .= ' THEN ';
-			$a_id       = $query->castAsChar('a.id');
-			$case_when .= $query->concatenate(array($a_id, 'a.alias'), ':');
-			$case_when .= ' ELSE ';
-			$case_when .= $a_id . ' END as slug';
+			$case_when = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
+			. ' THEN ' . $query->concatenate(array($query->castAsChar('a.id'), 'a.alias'), ':')
+			. ' ELSE ' . $query->castAsChar('a.id') . ' END AS slug';
 
-			$case_when1  = ' CASE WHEN ';
-			$case_when1 .= $query->charLength('c.alias', '!=', '0');
-			$case_when1 .= ' THEN ';
-			$c_id = $query->castAsChar('c.id');
-			$case_when1 .= $query->concatenate(array($c_id, 'c.alias'), ':');
-			$case_when1 .= ' ELSE ';
-			$case_when1 .= $c_id . ' END as catslug';
+			$case_when1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
+				. ' THEN ' . $query->concatenate(array($query->castAsChar('c.id'), 'c.alias'), ':')
+				. ' ELSE ' . $query->castAsChar('c.id') . ' END AS catslug';
 
 			if (!empty($relevance))
 			{
@@ -358,16 +350,14 @@ class PlgSearchContent extends JPlugin
 				$order = ' relevance DESC, ' . $order;
 			}
 
-			$query->select(
-				'a.title AS title, a.metadesc, a.metakey, a.created AS created, '
-				. $query->concatenate(array('a.introtext', 'a.fulltext')) . ' AS text,'
-				. $case_when . ',' . $case_when1 . ', '
-				. 'c.title AS section, \'2\' AS browsernav'
-			);
-
-			// .'CONCAT_WS("/", c.title) AS section, \'2\' AS browsernav' );
-			$query->from('#__content AS a')
-				->join('INNER', '#__categories AS c ON c.id=a.catid AND c.access IN (' . $groups . ')')
+			$query->select('a.title AS title, a.metadesc, a.metakey, a.created AS created')
+				->select($query->concatenate(array('a.introtext', 'a.fulltext')) . ' AS text')
+				->select($case_when)
+				->select($case_when1)
+				->select('c.title AS section')
+				->select($db->quote('2') . ' AS browsernav')
+				->from($db->quoteName('#__content', 'a'))
+				->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid AND c.access IN (' . $groups . ')')
 				->where(
 					'(' . $where . ') AND a.state = 2 AND c.published = 1 AND a.access IN (' . $groups
 						. ') AND c.access IN (' . $groups . ') '
@@ -379,7 +369,7 @@ class PlgSearchContent extends JPlugin
 			// Join over Fields is no longer neded
 
 			// Filter by language.
-			if ($app->isClient('site') && JLanguageMultilang::isEnabled())
+			if ($app->isClient('site') && Multilanguage::isEnabled())
 			{
 				$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
 					->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
@@ -394,7 +384,7 @@ class PlgSearchContent extends JPlugin
 			catch (RuntimeException $e)
 			{
 				$list3 = array();
-				JFactory::getApplication()->enqueueMessage(JText::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+				Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 			}
 
 			// Find an itemid for archived to use if there isn't another one.
@@ -405,12 +395,12 @@ class PlgSearchContent extends JPlugin
 			{
 				foreach ($list3 as $key => $item)
 				{
-					$date = JFactory::getDate($item->created);
+					$date = Factory::getDate($item->created);
 
 					$created_month = $date->format('n');
 					$created_year = $date->format('Y');
 
-					$list3[$key]->href = JRoute::_('index.php?option=com_content&view=archive&year=' . $created_year . '&month=' . $created_month . $itemid);
+					$list3[$key]->href = Route::_('index.php?option=com_content&view=archive&year=' . $created_year . '&month=' . $created_month . $itemid);
 				}
 			}
 
@@ -450,5 +440,4 @@ class PlgSearchContent extends JPlugin
 
 		return $results;
 	}
-
 }

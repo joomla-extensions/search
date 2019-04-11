@@ -7,14 +7,21 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Component\Search\Site\Model;
+
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Pagination\Pagination;
+use Joomla\CMS\Plugin\PluginHelper;
 
 /**
  * Search Component Search Model
  *
  * @since  1.5
  */
-class SearchModelSearch extends JModelLegacy
+class SearchModel extends BaseDatabaseModel
 {
 	/**
 	 * Search data array
@@ -53,12 +60,10 @@ class SearchModelSearch extends JModelLegacy
 	{
 		parent::__construct();
 
-		// Get configuration
-		$app    = JFactory::getApplication();
-		$config = JFactory::getConfig();
+		$app = Factory::getApplication();
 
 		// Get the pagination request variables
-		$this->setState('limit', $app->getUserStateFromRequest('com_search.limit', 'limit', $config->get('list_limit'), 'uint'));
+		$this->setState('limit', $app->getUserStateFromRequest('com_search.limit', 'limit', $app->get('list_limit'), 'uint'));
 		$this->setState('limitstart', $app->input->get('limitstart', 0, 'uint'));
 
 		// Get parameters.
@@ -125,7 +130,7 @@ class SearchModelSearch extends JModelLegacy
 	}
 
 	/**
-	 * Method to get weblink item data for the category
+	 * Method to get search results for a given query
 	 *
 	 * @access  public
 	 * @return  array
@@ -137,9 +142,8 @@ class SearchModelSearch extends JModelLegacy
 		{
 			$areas = $this->getAreas();
 
-			JPluginHelper::importPlugin('search');
-			$dispatcher = JEventDispatcher::getInstance();
-			$results = $dispatcher->trigger('onContentSearch', array(
+			PluginHelper::importPlugin('search');
+			$results = Factory::getApplication()->triggerEvent('onContentSearch', array(
 				$this->getState('keyword'),
 				$this->getState('match'),
 				$this->getState('ordering'),
@@ -199,15 +203,14 @@ class SearchModelSearch extends JModelLegacy
 	/**
 	 * Method to get a pagination object of the weblink items for the category
 	 *
-	 * @access  public
-	 * @return  integer
+	 * @return  Pagination
 	 */
 	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination))
 		{
-			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = new Pagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -227,9 +230,8 @@ class SearchModelSearch extends JModelLegacy
 		{
 			$areas = array();
 
-			JPluginHelper::importPlugin('search');
-			$dispatcher  = JEventDispatcher::getInstance();
-			$searchareas = $dispatcher->trigger('onContentSearchAreas');
+			PluginHelper::importPlugin('search');
+			$searchareas = Factory::getApplication()->triggerEvent('onContentSearchAreas');
 
 			foreach ($searchareas as $area)
 			{

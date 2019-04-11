@@ -7,14 +7,18 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Module\Search\Site\Helper;
+
 defined('_JEXEC') or die;
+
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * Helper for mod_search
  *
  * @since  1.5
  */
-class ModSearchHelper
+class SearchHelper
 {
 	/**
 	 * Display the search button as an image.
@@ -27,6 +31,6 @@ class ModSearchHelper
 	 */
 	public static function getSearchImage($button_text)
 	{
-		return JHtml::_('image', 'searchButton.gif', $button_text, null, true, true);
+		return HTMLHelper::_('image', 'searchButton.gif', $button_text, null, true, true);
 	}
 }
