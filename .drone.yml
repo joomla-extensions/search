@@ -3,11 +3,16 @@ pipeline:
     image: plugins/git
     depth: 1
 
+  setup:
+   image: docker:git
+   commands:
+     - git clone https://github.com/joomla/joomla-cms.git
+
   phpcs:
     image: joomlaprojects/docker-phpcs
     commands:
       - echo $(date)
-      - /root/.composer/vendor/bin/phpcs --report=full --encoding=utf-8 --extensions=php -p --standard=build/phpcs/Joomla .
+      - /root/.composer/vendor/bin/phpcs --report=full --encoding=utf-8 --extensions=php -p --standard=joomla-cms/build/phpcs/Joomla src
       - echo $(date)
 
 #  restore-cache:
