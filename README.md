@@ -1,6 +1,6 @@
 # Search for Joomla! Travis:
 
-Drone: [![Drone Build Status](http://213.160.72.75/api/badges/joomla-extensions/search/status.svg)](http://213.160.72.75/joomla-extensions/search)
+Drone: [![Drone Build Status](http://213.160.72.75/api/badges/joomla-extensions/search/status.svg?branch=4.0-dev)](http://213.160.72.75/joomla-extensions/search)
 
 This repo is meant to hold the decoupled com_search component and related code.
 
