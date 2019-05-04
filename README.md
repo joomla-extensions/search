@@ -2,7 +2,7 @@
 
 [![Build Status](https://ci.joomla.org/api/badges/joomla-extensions/search/status.svg?branch=4.0-dev)](https://ci.joomla.org/joomla-extensions/search)
 
-This repo is meant to hold the decoupled com_search component and related code.
+This repo is meant to hold the decoupled com_search component and related code. Test.
 
 # How to test a PR
 
