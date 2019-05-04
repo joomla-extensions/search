@@ -9,4 +9,4 @@
 1. Download the last version of the the search package from: https://github.com/joomla-extensions/search/releases/latest
 2. Unzip that package
 3. Install the parts over the normal Joomla! installer
-4. Please note that the updater only work if you instal the complete package.
+4. Please note that the updater only works if you install the complete package.
