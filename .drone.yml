@@ -135,3 +135,8 @@ pipeline:
 #
 #  postgres:
 #    image: postgres
+---
+kind: signature
+hmac: 464318e9068d4456caf120d4a387393b079026677cd49c6e9aaabd6cd6319f3b
+
+...
