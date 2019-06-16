@@ -1,8 +1,12 @@
-# Search for Joomla! Travis:
+# Legacy Search for Joomla!
 
-Drone: [![Drone Build Status](http://213.160.72.75/api/badges/joomla-extensions/search/status.svg)](http://213.160.72.75/joomla-extensions/search)
+Build Status
+---------------------
+| Drone-CI |
+| ------------- |
+| [![Build Status](https://ci.joomla.org/api/badges/joomla-extensions/search/status.svg)](https://ci.joomla.org/joomla-extensions/search) |
 
-This repo is meant to hold the decoupled com_search component and related code.
+Legacy Search provides a rudimentary search for the Joomla! CMS. To be able to search the data of a datasource from this, you have to provide a plugin for that. It is advised to use the built-in Smart Search component in Joomla instead of this one. This set of extensions is going to be supported until Joomla 5.0 is going to be released.
 
 # How to test a PR
 
