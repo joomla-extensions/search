@@ -1,3 +1,4 @@
+---
 pipeline:
 name: default
 
@@ -16,3 +17,8 @@ steps:
       - echo $(date)
       - ./vendor/bin/phpcs --report=full --encoding=utf-8 --extensions=php -p --standard=./vendor/joomla/coding-standards/Joomla ./src
       - echo $(date)
+---
+kind: signature
+hmac: 6abb217e832e1ad34aebf15a1a374f521a40b99c9e6b68dfa5b7ec04c15af0d6
+
+...
