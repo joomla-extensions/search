@@ -287,8 +287,9 @@ class SearchHelper
 		$lsearchword = StringHelper::strtolower(self::remove_accents($searchword));
 		$wordfound   = false;
 		$pos         = 0;
+		$length      = $length > $textlen ? $textlen : $length;
 
-		while ($wordfound === false && $pos < $textlen)
+		while ($wordfound === false && $pos + $length < $textlen)
 		{
 			if (($wordpos = @StringHelper::strpos($ltext, ' ', $pos + $length)) !== false)
 			{
