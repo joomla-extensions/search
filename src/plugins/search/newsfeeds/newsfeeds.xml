@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.1" type="plugin" group="search" method="upgrade">
+<extension version="4.0" type="plugin" group="search" method="upgrade">
 	<name>plg_search_newsfeeds</name>
 	<author>Joomla! Project</author>
-	<creationDate>November 2005</creationDate>
+	<creationDate>17.08.2021</creationDate>
 	<copyright>(C) 2005 Open Source Matters, Inc.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.0.0</version>
-	<description>PLG_SEARCH_NEWSFEEDS_XML_DESCRIPTION</description>
+	<version>4.0.0-dev</version>
 	<files>
 		<filename plugin="newsfeeds">newsfeeds.php</filename>
 	</files>
-	<languages>
-		<language tag="en-GB">en-GB.plg_search_newsfeeds.ini</language>
-		<language tag="en-GB">en-GB.plg_search_newsfeeds.sys.ini</language>
-	</languages>
 	<config>
 		<fields name="params">
 			<fieldset name="basic">

@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.1" method="upgrade">
+<extension type="component" version="4.0.0" method="upgrade">
 	<name>com_search</name>
 	<author>Joomla! Project</author>
-	<creationDate>April 2006</creationDate>
+	<creationDate>17.06.2021</creationDate>
 	<copyright>(C) 2006 Open Source Matters, Inc.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.0.0</version>
-	<description>COM_SEARCH_XML_DESCRIPTION</description>
-	<files folder="site">
+	<version>4.0.0-dev</version>
+	<files folder="components/com_search">
 		<filename>controller.php</filename>
 		<filename>router.php</filename>
 		<filename>search.php</filename>
 		<folder>models</folder>
 		<folder>views</folder>
 	</files>
-	<languages folder="site">
-		<language tag="en-GB">language/en-GB.com_search.ini</language>
-	</languages>
 	<administration>
 		<menu link="option=com_search" img="class:search">Search</menu>
-		<files folder="admin">
+		<files folder="administrator/components/com_search">
 			<filename>config.xml</filename>
 			<filename>controller.php</filename>
 			<filename>search.php</filename>
@@ -30,9 +26,5 @@
 			<folder>models</folder>
 			<folder>views</folder>
 		</files>
-		<languages folder="admin">
-			<language tag="en-GB">language/en-GB.com_search.ini</language>
-			<language tag="en-GB">language/en-GB.com_search.sys.ini</language>
-		</languages>
 	</administration>
 </extension>
