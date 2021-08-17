@@ -23,9 +23,6 @@
 		<file type="plugin" id="newsfeeds" group="search">plg_search_newsfeeds.zip</file>
 		<file type="plugin" id="tags" group="search">plg_search_tags.zip</file>
 	</files>
-	<languages folder="language">
-		<language tag="en-GB">en-GB/en-GB.pkg_search.sys.ini</language>
-	</languages>
 	<updateservers>
 		<!-- Note: No spaces or linebreaks allowed between the server tags -->
 		<server type="extension" name="Search Update Site">https://raw.githubusercontent.com/joomla-extensions/search/main/manifest.xml</server>
