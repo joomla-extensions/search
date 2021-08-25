@@ -161,18 +161,7 @@ class HtmlView extends BaseHtmlView
 			$params->set('page_title', Text::_('COM_SEARCH_SEARCH'));
 		}
 
-		$title = $params->get('page_title');
-
-		if ($app->get('sitename_pagetitles', 0) == 1)
-		{
-			$title = Text::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-		}
-		elseif ($app->get('sitename_pagetitles', 0) == 2)
-		{
-			$title = Text::sprintf('JPAGETITLE', $title, $app->get('sitename'));
-		}
-
-		$this->document->setTitle($title);
+		$this->setDocumentTitle($params->get('page_title'));
 
 		if ($params->get('menu-meta_description'))
 		{
@@ -200,14 +189,14 @@ class HtmlView extends BaseHtmlView
 		$lists             = array();
 		$lists['ordering'] = HTMLHelper::_('select.genericlist', $orders, 'ordering', 'class="custom-select"', 'value', 'text', $state->get('ordering'));
 
-		$searchphrases         = array();
-		$searchphrases[]       = HTMLHelper::_('select.option', 'all', Text::_('COM_SEARCH_ALL_WORDS'));
-		$searchphrases[]       = HTMLHelper::_('select.option', 'any', Text::_('COM_SEARCH_ANY_WORDS'));
-		$searchphrases[]       = HTMLHelper::_('select.option', 'exact', Text::_('COM_SEARCH_EXACT_PHRASE'));
-		$lists['searchphrase'] = HTMLHelper::_('select.radiolist', $searchphrases, 'searchphrase', '', 'value', 'text', $state->get('match'));
+		$searchPhrases         = array();
+		$searchPhrases[]       = HTMLHelper::_('select.option', 'all', Text::_('COM_SEARCH_ALL_WORDS'));
+		$searchPhrases[]       = HTMLHelper::_('select.option', 'any', Text::_('COM_SEARCH_ANY_WORDS'));
+		$searchPhrases[]       = HTMLHelper::_('select.option', 'exact', Text::_('COM_SEARCH_EXACT_PHRASE'));
+		$lists['searchphrase'] = HTMLHelper::_('select.radiolist', $searchPhrases, 'searchphrase', '', 'value', 'text', $state->get('match'));
 
 		// Log the search
-		\Joomla\CMS\Helper\SearchHelper::logSearch($searchWord, 'com_search');
+		SearchHelper::logSearch($searchWord, 'com_search');
 
 		// Limit search-word
 		$lang        = Factory::getLanguage();
