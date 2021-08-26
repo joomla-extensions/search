@@ -50,7 +50,7 @@ class SearchesController extends BaseController
 		// Check for request forgeries.
 		$this->checkToken();
 
-		if ($this->getModel('Searches')->getState('show_results', 1, 'int') === 0)
+		if ((int) $this->getModel('Searches')->getState('show_results', 1) === 0)
 		{
 			$this->setRedirect('index.php?option=com_search&view=searches&show_results=1');
 		}
