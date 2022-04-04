@@ -150,7 +150,7 @@ class SearchViewSearch extends JViewLegacy
 			for ($i = 0, $count = count($results); $i < $count; ++$i)
 			{
 				$rowTitle = &$results[$i]->title;
-				$rowTitleHighLighted = $this->highLight($rowTitle, $needle, $searchWords);
+				$rowTitleHighLighted = $this->highLight($rowTitle, $needle, $searchWords, false);
 				$rowText = &$results[$i]->text;
 				$rowTextHighLighted = $this->highLight($rowText, $needle, $searchWords);
 
@@ -206,7 +206,7 @@ class SearchViewSearch extends JViewLegacy
 	 *
 	 * @since   3.8.4
 	 */
-	public function highLight($string, $needle, $searchWords)
+	public function highLight($string, $needle, $searchWords, $prepare=true)
 	{
 		$hl1            = '<span class="highlight">';
 		$hl2            = '</span>';
@@ -216,7 +216,9 @@ class SearchViewSearch extends JViewLegacy
 		// Doing HTML entity decoding here, just in case we get any HTML entities here.
 		$quoteStyle   = version_compare(PHP_VERSION, '5.4', '>=') ? ENT_NOQUOTES | ENT_HTML401 : ENT_NOQUOTES;
 		$row          = html_entity_decode($string, $quoteStyle, 'UTF-8');
-		$row          = SearchHelper::prepareSearchContent($row, $needle);
+		if($prepare) { 
+			$row  = SearchHelper::prepareSearchContent($row, $needle); 
+		}
 		$searchWords  = array_values(array_unique($searchWords));
 		$lowerCaseRow = $mbString ? mb_strtolower($row) : StringHelper::strtolower($row);
 
