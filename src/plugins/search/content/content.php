@@ -89,8 +89,7 @@ class PlgSearchContent extends CMSPlugin
 		$sContent  = $this->params->get('search_content', 1);
 		$sArchived = $this->params->get('search_archived', 1);
 		$limit     = $this->params->def('search_limit', 50);
-
-		$nullDate  = $db->getNullDate();
+		
 		$date      = Factory::getDate();
 		$now       = $date->toSql();
 
@@ -308,8 +307,8 @@ class PlgSearchContent extends CMSPlugin
 					'(' . $where . ') AND c.published = 1 AND a.access IN (' . $groups . ') '
 						. 'AND (a.state = ' . ContentComponent::CONDITION_PUBLISHED . ') '
 						. 'AND c.access IN (' . $groups . ') '
-						. 'AND (a.publish_up = ' . $db->quote($nullDate) . ' OR a.publish_up <= ' . $db->quote($now) . ') '
-						. 'AND (a.publish_down = ' . $db->quote($nullDate) . ' OR a.publish_down >= ' . $db->quote($now) . ')'
+						. 'AND (a.publish_up IS NULL OR a.publish_up <= ' . $db->quote($now) . ') '
+						. 'AND (a.publish_down IS NULL OR a.publish_down >= ' . $db->quote($now) . ')'
 				)
 				->group('a.id, a.title, a.metadesc, a.metakey, a.created, a.language, a.catid, a.introtext, a.fulltext, c.title, a.alias, c.alias, c.id')
 				->order($order);
@@ -376,8 +375,8 @@ class PlgSearchContent extends CMSPlugin
 				->where(
 					'(' . $where . ') AND a.state = 2 AND c.published = 1 AND a.access IN (' . $groups
 						. ') AND c.access IN (' . $groups . ') '
-						. 'AND (a.publish_up = ' . $db->quote($nullDate) . ' OR a.publish_up <= ' . $db->quote($now) . ') '
-						. 'AND (a.publish_down = ' . $db->quote($nullDate) . ' OR a.publish_down >= ' . $db->quote($now) . ')'
+						. 'AND (a.publish_up IS NULL OR a.publish_up <= ' . $db->quote($now) . ') '
+						. 'AND (a.publish_down IS NULL OR a.publish_down >= ' . $db->quote($now) . ')'
 				)
 				->order($order);
 
