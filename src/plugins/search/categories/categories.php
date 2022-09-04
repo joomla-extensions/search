@@ -13,8 +13,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\Component\Search\Administrator\Helper\SearchHelper;
 use Joomla\Component\Content\Site\Helper\RouteHelper;
+use Joomla\Component\Search\Administrator\Helper\SearchHelper;
+use Joomla\Database\ParameterType;
 
 /**
  * Categories search plugin.
@@ -80,10 +81,8 @@ class PlgSearchCategories extends CMSPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db 	= $this->db;
-		$app 	= $this->app;
-		$user 	= $app->getIdentity();
-		$groups = implode(',', $user->getAuthorisedViewLevels());
+		$db         = $this->db;
+		$app        = $this->app;
 		$searchText = $text;
 
 		if (is_array($areas) && !array_intersect($areas, array_keys($this->onContentSearchAreas())))
@@ -161,28 +160,32 @@ class PlgSearchCategories extends CMSPlugin
 				$order = 'a.title DESC';
 		}
 
-		$text = $db->quote('%' . $db->escape($text, true) . '%', false);
-		$query = $db->getQuery(true);
+		$text      = '%' . $text . '%';
+		$extension = 'com_content';
+		$query     = $db->getQuery(true);
 
-		$case_when = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
+		$caseWhen = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
 			. ' THEN ' . $query->concatenate(array($query->castAsChar('a.id'), 'a.alias'), ':')
 			. ' ELSE a.id END AS slug';
 
 		$query->select('a.title, a.description AS text, a.created_time AS created')
 			->select($db->quote('2') . ' AS browsernav')
 			->select('a.id AS catid, a.language AS category_language')
-			->select($case_when)
+			->select($caseWhen)
 			->from($db->quoteName('#__categories', 'a'))
-			->where(
-				'(a.title LIKE ' . $text . ' OR a.description LIKE ' . $text . ') AND a.published IN (' . implode(',', $state) . ') AND a.extension = '
-				. $db->quote('com_content') . 'AND a.access IN (' . $groups . ')'
-			)
+			->where('(' . $db->quoteName('a.title') . ' LIKE :title OR ' . $db->quoteName('a.description') . ' LIKE :description)')
+			->where($db->quoteName('a.extension') .' = :extension')
+			->whereIn($db->quoteName('a.published'), $state)
+			->whereIn($db->quoteName('a.access'), $app->getIdentity()->getAuthorisedViewLevels())
+			->bind(':title', $text)
+			->bind(':description', $text)
+			->bind(':extension', $extension)
 			->group('a.id, a.title, a.description, a.alias, a.created_time, a.language')
 			->order($order);
 
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$query->where('a.language in (' . $db->quote(Factory::getLanguage()->getTag()) . ',' . $db->quote('*') . ')');
+			$query->whereIn($db->quoteName('a.language'), [Factory::getLanguage()->getTag(), '*'], ParameterType::STRING);
 		}
 
 		$db->setQuery($query, 0, $limit);
