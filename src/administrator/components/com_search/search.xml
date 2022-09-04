@@ -10,15 +10,27 @@
 	<version>4.0.0</version>
 	<description>COM_SEARCH_XML_DESCRIPTION</description>
 	<namespace>Joomla\Component\Search</namespace>
-	<files folder="site">
+	<install>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/install.mysql.sql</file>
+			<file charset="utf8" driver="postgresql">sql/install.postgresql.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/uninstall.mysql.sql</file>
+			<file charset="utf8" driver="postgresql">sql/uninstall.postgresql.sql</file>
+		</sql>
+	</uninstall>
+	<files folder="components/com_search">
 		<filename>router.php</filename>		
 		<folder>Controller</folder>
 		<folder>Model</folder>
 		<folder>tmpl</folder>
 		<folder>View</folder>
 	</files>
-	<languages folder="site">
-		<language tag="en-GB">language/en-GB.com_search.ini</language>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/com_search.ini</language>
 	</languages>
 	<administration>
 		<menu link="option=com_search">Search</menu>
@@ -36,9 +48,9 @@
 			<folder>View</folder>
 			<folder>views</folder>
 		</files>
-		<languages folder="admin">
-			<language tag="en-GB">language/en-GB.com_search.ini</language>
-			<language tag="en-GB">language/en-GB.com_search.sys.ini</language>
+		<languages folder="administrator/components/com_search">
+			<language tag="en-GB">en-GB/com_search.ini</language>
+			<language tag="en-GB">en-GB/com_search.sys.ini</language>
 		</languages>
 	</administration>
 </extension>

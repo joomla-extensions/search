@@ -25,6 +25,22 @@ use Joomla\Component\Search\Administrator\Helper\SearchHelper;
 class PlgSearchContent extends CMSPlugin
 {
 	/**
+	 * Application object
+	 *
+	 * @var    \Joomla\CMS\Application\CMSApplicationInterface
+	 * @since  4.0.0
+	 */
+	protected $app;
+
+	/**
+	 * Database Driver Instance
+	 *
+	 * @var    \Joomla\Database\DatabaseDriver
+	 * @since  4.0.0
+	 */
+	protected $db;
+
+	/**
 	 * Determine areas searchable by this plugin.
 	 *
 	 * @return  array  An array of search areas.
@@ -56,12 +72,12 @@ class PlgSearchContent extends CMSPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db         = Factory::getDbo();
+		$db         = $this->db;
 		$serverType = $db->getServerType();
-		$app        = Factory::getApplication();
-		$user       = Factory::getUser();
+		$app        = $this->app;
+		$user       = $app->getIdentity();
 		$groups     = implode(',', $user->getAuthorisedViewLevels());
-		$tag        = Factory::getLanguage()->getTag();
+		$tag        = $app->getLanguage()->getTag();
 
 		$searchText = $text;
 
@@ -288,12 +304,9 @@ class PlgSearchContent extends CMSPlugin
 				->select($db->quote('2') . ' AS browsernav')
 				->from($db->quoteName('#__content', 'a'))
 				->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid')
-				->join('LEFT', '#__workflow_associations AS wa ON wa.item_id = a.id')
-				->join('INNER', '#__workflow_stages AS ws ON ws.id = wa.stage_id')
-				->where($db->quoteName('wa.extension') . '=' . $db->quote('com_content'))
 				->where(
 					'(' . $where . ') AND c.published = 1 AND a.access IN (' . $groups . ') '
-						. 'AND (ws.condition = ' . ContentComponent::CONDITION_PUBLISHED . ') '
+						. 'AND (a.state = ' . ContentComponent::CONDITION_PUBLISHED . ') '
 						. 'AND c.access IN (' . $groups . ') '
 						. 'AND (a.publish_up = ' . $db->quote($nullDate) . ' OR a.publish_up <= ' . $db->quote($now) . ') '
 						. 'AND (a.publish_down = ' . $db->quote($nullDate) . ' OR a.publish_down >= ' . $db->quote($now) . ')'
@@ -317,7 +330,7 @@ class PlgSearchContent extends CMSPlugin
 			catch (RuntimeException $e)
 			{
 				$list = array();
-				Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+				$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 			}
 
 			$limit -= count($list);
@@ -386,7 +399,7 @@ class PlgSearchContent extends CMSPlugin
 			catch (RuntimeException $e)
 			{
 				$list3 = array();
-				Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+				$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 			}
 
 			// Find an itemid for archived to use if there isn't another one.

@@ -12,6 +12,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Component\Tags\Site\Helper\RouteHelper;
 
 /**
  * Tags search plugin.
@@ -20,6 +21,22 @@ use Joomla\CMS\Plugin\CMSPlugin;
  */
 class PlgSearchTags extends CMSPlugin
 {
+	/**
+	 * Application object
+	 *
+	 * @var    \Joomla\CMS\Application\CMSApplicationInterface
+	 * @since  4.0.0
+	 */
+	protected $app;
+
+	/**
+	 * Database Driver Instance
+	 *
+	 * @var    \Joomla\Database\DatabaseDriver
+	 * @since  4.0.0
+	 */
+	protected $db;
+
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -61,11 +78,11 @@ class PlgSearchTags extends CMSPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db    = Factory::getDbo();
+		$db    = $this->db;
 		$query = $db->getQuery(true);
-		$app   = Factory::getApplication();
-		$user  = Factory::getUser();
-		$lang  = Factory::getLanguage();
+		$app   = $this->app;
+		$user  = $app->getIdentity();
+		$lang  = $app->getLanguage();
 
 		$section = Text::_('PLG_SEARCH_TAGS_TAGS');
 		$limit   = $this->params->def('search_limit', 50);
@@ -132,7 +149,7 @@ class PlgSearchTags extends CMSPlugin
 
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$tag = Factory::getLanguage()->getTag();
+			$tag = $app->getLanguage()->getTag();
 			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
 		}
 
@@ -147,16 +164,14 @@ class PlgSearchTags extends CMSPlugin
 		catch (RuntimeException $e)
 		{
 			$rows = array();
-			Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 		}
 
 		if ($rows)
 		{
-			JLoader::register('TagsHelperRoute', JPATH_SITE . '/components/com_tags/helpers/route.php');
-
 			foreach ($rows as $key => $row)
 			{
-				$rows[$key]->href       = TagsHelperRoute::getTagRoute($row->slug);
+				$rows[$key]->href       = RouteHelper::getTagRoute($row->slug);
 				$rows[$key]->text       = ($row->description !== '' ? $row->description : $row->title);
 				$rows[$key]->text      .= $row->note;
 				$rows[$key]->section    = $section;
@@ -172,7 +187,7 @@ class PlgSearchTags extends CMSPlugin
 		else
 		{
 			$final_items = $rows;
-			$tag_model   = Factory::getApplication()->bootComponent('com_tags')
+			$tag_model   = $app->bootComponent('com_tags')
 				->getMVCFactory()->createModel('Tag', 'Site');
 			$tag_model->getState();
 

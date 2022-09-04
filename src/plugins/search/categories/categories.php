@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Component\Search\Administrator\Helper\SearchHelper;
+use Joomla\Component\Content\Site\Helper\RouteHelper;
 
 /**
  * Categories search plugin.
@@ -22,6 +23,22 @@ use Joomla\Component\Search\Administrator\Helper\SearchHelper;
  */
 class PlgSearchCategories extends CMSPlugin
 {
+	/**
+	 * Application object
+	 *
+	 * @var    \Joomla\CMS\Application\CMSApplicationInterface
+	 * @since  4.0.0
+	 */
+	protected $app;
+
+	/**
+	 * Database Driver Instance
+	 *
+	 * @var    \Joomla\Database\DatabaseDriver
+	 * @since  4.0.0
+	 */
+	protected $db;
+
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -63,9 +80,9 @@ class PlgSearchCategories extends CMSPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		$db 	= Factory::getDbo();
-		$user 	= Factory::getUser();
-		$app 	= Factory::getApplication();
+		$db 	= $this->db;
+		$app 	= $this->app;
+		$user 	= $app->getIdentity();
 		$groups = implode(',', $user->getAuthorisedViewLevels());
 		$searchText = $text;
 
@@ -177,7 +194,7 @@ class PlgSearchCategories extends CMSPlugin
 		catch (RuntimeException $e)
 		{
 			$rows = array();
-			Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 		}
 
 		$return = array();
@@ -188,7 +205,7 @@ class PlgSearchCategories extends CMSPlugin
 			{
 				if (SearchHelper::checkNoHtml($row, $searchText, array('name', 'title', 'text')))
 				{
-					$row->href = ContentHelperRoute::getCategoryRoute($row->slug, $row->category_language);
+					$row->href = RouteHelper::getCategoryRoute($row->slug, $row->category_language);
 					$row->section = Text::_('JCATEGORY');
 
 					$return[] = $row;

@@ -13,6 +13,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Component\Contact\Site\Helper\RouteHelper;
 
 /**
  * Contacts search plugin.
@@ -21,6 +22,22 @@ use Joomla\CMS\Plugin\CMSPlugin;
  */
 class PlgSearchContacts extends CMSPlugin
 {
+	/**
+	 * Application object
+	 *
+	 * @var    \Joomla\CMS\Application\CMSApplicationInterface
+	 * @since  4.0.0
+	 */
+	protected $app;
+
+	/**
+	 * Database Driver Instance
+	 *
+	 * @var    \Joomla\Database\DatabaseDriver
+	 * @since  4.0.0
+	 */
+	protected $db;
+
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -62,11 +79,9 @@ class PlgSearchContacts extends CMSPlugin
 	 */
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
-		JLoader::register('ContactHelperRoute', JPATH_SITE . '/components/com_contact/helpers/route.php');
-
-		$db     = Factory::getDbo();
-		$app    = Factory::getApplication();
-		$user   = Factory::getUser();
+		$db     = $this->db;
+		$app    = $this->app;
+		$user   = $app->getIdentity();
 		$groups = implode(',', $user->getAuthorisedViewLevels());
 
 		if (is_array($areas) && !array_intersect($areas, array_keys($this->onContentSearchAreas())))
@@ -167,14 +182,14 @@ class PlgSearchContacts extends CMSPlugin
 		catch (RuntimeException $e)
 		{
 			$rows = array();
-			Factory::getApplication()->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 		}
 
 		if ($rows)
 		{
 			foreach ($rows as $key => $row)
 			{
-				$rows[$key]->href  = ContactHelperRoute::getContactRoute($row->slug, $row->catslug);
+				$rows[$key]->href  = RouteHelper::getContactRoute($row->slug, $row->catslug);
 				$rows[$key]->text  = $row->title;
 				$rows[$key]->text .= $row->con_position ? ', ' . $row->con_position : '';
 				$rows[$key]->text .= $row->misc ? ', ' . $row->misc : '';
