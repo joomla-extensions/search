@@ -103,7 +103,7 @@ class SearchesModel extends ListModel
 	protected function getListQuery()
 	{
 		// Create a new query object.
-		$db = $this->getDbo();
+		$db = $this->getDatabase();
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
@@ -170,7 +170,7 @@ class SearchesModel extends ListModel
 	 */
 	public function reset()
 	{
-		$db = $this->getDbo();
+		$db = $this->getDatabase();
 		$query = $db->getQuery(true)
 			->delete($db->quoteName('#__core_log_searches'));
 		$db->setQuery($query);
