@@ -16,6 +16,7 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Route;
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Search\Administrator\Helper\SearchHelper;
+use Joomla\Database\ParameterType;
 
 /**
  * Content search plugin.
@@ -76,7 +77,8 @@ class PlgSearchContent extends CMSPlugin
 		$serverType = $db->getServerType();
 		$app        = $this->app;
 		$user       = $app->getIdentity();
-		$groups     = implode(',', $user->getAuthorisedViewLevels());
+		$viewLevels = $user->getAuthorisedViewLevels();
+		$groups     = implode(',', $viewLevels);
 		$tag        = $app->getLanguage()->getTag();
 
 		$searchText = $text;
@@ -296,28 +298,31 @@ class PlgSearchContent extends CMSPlugin
 			}
 
 			$query->select('a.title AS title, a.metadesc, a.metakey, a.created AS created, a.language, a.catid')
-				->select($query->concatenate(array('a.introtext', 'a.fulltext')) . ' AS text')
+				->select($query->concatenate(['a.introtext', 'a.fulltext']) . ' AS text')
 				->select('c.title AS section')
 				->select($case_when)
 				->select($case_when1)
 				->select($db->quote('2') . ' AS browsernav')
 				->from($db->quoteName('#__content', 'a'))
 				->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid')
-				->where(
-					'(' . $where . ') AND c.published = 1 AND a.access IN (' . $groups . ') '
-						. 'AND (a.state = ' . ContentComponent::CONDITION_PUBLISHED . ') '
-						. 'AND c.access IN (' . $groups . ') '
-						. 'AND (a.publish_up IS NULL OR a.publish_up <= ' . $db->quote($now) . ') '
-						. 'AND (a.publish_down IS NULL OR a.publish_down >= ' . $db->quote($now) . ')'
-				)
+				->where('(' . $where . ')')
+				->where($db->quoteName('c.published') . ' = 1')
+				->whereIn($db->quoteName('a.access'), $viewLevels)
+				->where($db->quoteName('a.state') . ' = ' . ContentComponent::CONDITION_PUBLISHED)
+				->whereIn($db->quoteName('c.access'), $viewLevels)
+				->where('(a.publish_up IS NULL OR a.publish_up <= :publishUp)')
+				->where('(a.publish_down IS NULL OR a.publish_up >= :publishDown)')
+				->bind(':publishUp', $now)
+				->bind(':publishDown', $now)
 				->group('a.id, a.title, a.metadesc, a.metakey, a.created, a.language, a.catid, a.introtext, a.fulltext, c.title, a.alias, c.alias, c.id')
 				->order($order);
 
 			// Filter by language.
 			if ($app->isClient('site') && Multilanguage::isEnabled())
 			{
-				$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
-					->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
+				$languages = [$tag, '*'];
+				$query->whereIn($db->quoteName('a.language'), $languages, ParameterType::STRING)
+					->whereIn($db->quoteName('c.language'), $languages, ParameterType::STRING);
 			}
 
 			$db->setQuery($query, 0, $limit);
@@ -365,28 +370,32 @@ class PlgSearchContent extends CMSPlugin
 			}
 
 			$query->select('a.title AS title, a.metadesc, a.metakey, a.created AS created')
-				->select($query->concatenate(array('a.introtext', 'a.fulltext')) . ' AS text')
+				->select($query->concatenate(['a.introtext', 'a.fulltext']) . ' AS text')
 				->select($case_when)
 				->select($case_when1)
 				->select('c.title AS section')
 				->select($db->quote('2') . ' AS browsernav')
 				->from($db->quoteName('#__content', 'a'))
 				->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid AND c.access IN (' . $groups . ')')
-				->where(
-					'(' . $where . ') AND a.state = 2 AND c.published = 1 AND a.access IN (' . $groups
-						. ') AND c.access IN (' . $groups . ') '
-						. 'AND (a.publish_up IS NULL OR a.publish_up <= ' . $db->quote($now) . ') '
-						. 'AND (a.publish_down IS NULL OR a.publish_down >= ' . $db->quote($now) . ')'
-				)
+				->where('(' . $where . ')')
+				->where($db->quoteName('a.state') . ' = 2')
+				->where($db->quoteName('c.published') . ' = 1')
+				->whereIn($db->quoteName('a.access'), $viewLevels)
+				->whereIn($db->quoteName('c.access'), $viewLevels)
+				->where('(a.publish_up IS NULL OR a.publish_up <= :publishUp)')
+				->where('(a.publish_down IS NULL OR a.publish_up >= :publishDown)')
+				->bind(':publishUp', $now)
+				->bind(':publishDown', $now)
 				->order($order);
 
-			// Join over Fields is no longer neded
+			// Join over Fields is no longer needed
 
 			// Filter by language.
 			if ($app->isClient('site') && Multilanguage::isEnabled())
 			{
-				$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
-					->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
+				$languages = [$tag, '*'];
+				$query->whereIn($db->quoteName('a.language'), $languages, ParameterType::STRING)
+					->whereIn($db->quoteName('c.language'), $languages, ParameterType::STRING);
 			}
 
 			$db->setQuery($query, 0, $limit);
