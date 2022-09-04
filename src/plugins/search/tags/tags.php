@@ -8,11 +8,11 @@
  */
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Component\Tags\Site\Helper\RouteHelper;
+use Joomla\Database\ParameterType;
 
 /**
  * Tags search plugin.
@@ -99,7 +99,7 @@ class PlgSearchTags extends CMSPlugin
 			return array();
 		}
 
-		$text = $db->quote('%' . $db->escape($text, true) . '%', false);
+		$text = '%' . $text . '%';
 
 		switch ($ordering)
 		{
@@ -125,32 +125,32 @@ class PlgSearchTags extends CMSPlugin
 			. ', a.path, a.parent_id, a.level, a.lft, a.rgt'
 			. ', a.language, a.created_time AS created, a.description');
 
-		$case_when_item_alias  = ' CASE WHEN ';
-		$case_when_item_alias .= $query->charLength('a.alias', '!=', '0');
-		$case_when_item_alias .= ' THEN ';
+		$caseWhen  = ' CASE WHEN ';
+		$caseWhen .= $query->charLength('a.alias', '!=', '0');
+		$caseWhen .= ' THEN ';
 		$a_id                  = $query->castAsChar('a.id');
-		$case_when_item_alias .= $query->concatenate(array($a_id, 'a.alias'), ':');
-		$case_when_item_alias .= ' ELSE ';
-		$case_when_item_alias .= $a_id . ' END as slug';
-		$query->select($case_when_item_alias);
+		$caseWhen .= $query->concatenate(array($a_id, 'a.alias'), ':');
+		$caseWhen .= ' ELSE ';
+		$caseWhen .= $a_id . ' END as slug';
+		$query->select($caseWhen);
 
 		$query->from('#__tags AS a');
 		$query->where('a.alias <> ' . $db->quote('root'));
 
-		$query->where('(a.title LIKE ' . $text . ' OR a.alias LIKE ' . $text . ')');
-
+		$query->where('(a.title LIKE :title OR a.alias LIKE :alias)')
+			->bind(':title', $text)
+			->bind(':alias', $text);
+		
 		$query->where($db->quoteName('a.published') . ' = 1');
 
 		if (!$user->authorise('core.admin'))
 		{
-			$groups = implode(',', $user->getAuthorisedViewLevels());
-			$query->where('a.access IN (' . $groups . ')');
+			$query->whereIn($db->quoteName('a.access'), $user->getAuthorisedViewLevels());
 		}
 
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$tag = $app->getLanguage()->getTag();
-			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
+			$query->whereIn($db->quoteName('a.language'), [$app->getLanguage()->getTag(), '*'], ParameterType::STRING);
 		}
 
 		$query->order($order);
