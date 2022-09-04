@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Component\Contact\Site\Helper\RouteHelper;
+use Joomla\Database\ParameterType;
 
 /**
  * Contacts search plugin.
@@ -81,8 +82,7 @@ class PlgSearchContacts extends CMSPlugin
 	{
 		$db     = $this->db;
 		$app    = $this->app;
-		$user   = $app->getIdentity();
-		$groups = implode(',', $user->getAuthorisedViewLevels());
+		$groups = $app->getIdentity()->getAuthorisedViewLevels();
 
 		if (is_array($areas) && !array_intersect($areas, array_keys($this->onContentSearchAreas())))
 		{
@@ -135,42 +135,55 @@ class PlgSearchContacts extends CMSPlugin
 				$order = 'a.name DESC';
 		}
 
-		$text = $db->quote('%' . $db->escape($text, true) . '%', false);
+		$text = '%' . $text . '%';
 
 		$query = $db->getQuery(true);
 
-		$case_when = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
+		$caseWhen = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
 			. ' THEN ' . $query->concatenate(array($query->castAsChar('a.id'), 'a.alias'), ':')
 			. ' ELSE a.id END AS slug';
 
-		$case_when1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
+		$caseWhen1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
 			. ' THEN ' . $query->concatenate(array($query->castAsChar('c.id'), 'c.alias'), ':')
 			. ' ELSE c.id END AS catslug';
 
 		$query->select('a.name AS title')
 			->select($db->quote('') . ' AS created, a.con_position, a.misc')
-			->select($case_when)
-			->select($case_when1)
+			->select($caseWhen)
+			->select($caseWhen1)
 			->select($query->concatenate(array('a.name', 'a.con_position', 'a.misc'), ',') . ' AS text')
 			->select($query->concatenate(array($db->quote($section), 'c.title'), ' / ') . ' AS section')
 			->select($db->quote('2') . ' AS browsernav')
 			->from($db->quoteName('#__contact_details', 'a'))
 			->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid')
 			->where(
-				'(a.name LIKE ' . $text . ' OR a.misc LIKE ' . $text . ' OR a.con_position LIKE ' . $text
-					. ' OR a.address LIKE ' . $text . ' OR a.suburb LIKE ' . $text . ' OR a.state LIKE ' . $text
-					. ' OR a.country LIKE ' . $text . ' OR a.postcode LIKE ' . $text . ' OR a.telephone LIKE ' . $text
-					. ' OR a.fax LIKE ' . $text . ') AND a.published IN (' . implode(',', $state) . ') AND c.published=1 '
-					. ' AND a.access IN (' . $groups . ') AND c.access IN (' . $groups . ')'
+				'(a.name LIKE :name OR a.misc LIKE :misc OR a.con_position LIKE :con_position'
+				. ' OR a.address LIKE :address OR a.suburb LIKE :suburb OR a.state LIKE :state'
+				. ' OR a.country LIKE :country OR a.postcode LIKE :postcode OR a.telephone LIKE :telephone '
+				. ' OR a.fax LIKE :fax)'
 			)
+			->whereIn($db->quoteName('a.published'), $state)
+			->where($db->quoteName('c.published') . '= 1')
+			->whereIn($db->quoteName('a.access'), $groups)
+			->whereIn($db->quoteName('c.access'), $groups)
+			->bind(':name', $text)
+			->bind(':misc', $text)
+			->bind(':con_position', $text)
+			->bind(':address', $text)
+			->bind(':suburb', $text)
+			->bind(':state', $text)
+			->bind(':country', $text)
+			->bind(':postcode', $text)
+			->bind(':telephone', $text)
+			->bind(':fax', $text)
 			->order($order);
 
 		// Filter by language.
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$tag = Factory::getLanguage()->getTag();
-			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
-				->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
+			$languages = [Factory::getLanguage()->getTag(), '*'];
+			$query->whereIn($db->quoteName('a.language'), $languages, ParameterType::STRING)
+				->whereIn($db->quoteName('c.language'), $languages, ParameterType::STRING);
 		}
 
 		$db->setQuery($query, 0, $limit);
