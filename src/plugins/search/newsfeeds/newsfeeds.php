@@ -13,6 +13,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Database\ParameterType;
 
 /**
  * Newsfeeds search plugin.
@@ -80,8 +81,7 @@ class PlgSearchNewsfeeds extends CMSPlugin
 	{
 		$db 	= $this->db;
 		$app 	= $this->app;
-		$user 	= $app->getIdentity();
-		$groups = implode(',', $user->getAuthorisedViewLevels());
+		$groups = $app->getIdentity()->getAuthorisedViewLevels();
 
 		if (is_array($areas) && !array_intersect($areas, array_keys($this->onContentSearchAreas())))
 		{
@@ -165,31 +165,34 @@ class PlgSearchNewsfeeds extends CMSPlugin
 
 		$query = $db->getQuery(true);
 
-		$case_when = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
+		$caseWhen = ' CASE WHEN ' . $query->charLength('a.alias', '!=', '0')
 			. ' THEN ' . $query->concatenate(array($query->castAsChar('a.id'), 'a.alias'), ':')
 			. ' ELSE a.id END AS slug';
 
-		$case_when1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
+		$caseWhen1 = ' CASE WHEN ' . $query->charLength('c.alias', '!=', '0')
 			. ' THEN ' . $query->concatenate(array($query->castAsChar('c.id'), 'c.alias'), ':')
 			. ' ELSE c.id END AS catslug';
 
 		$query->select('a.name AS title')
 			->select($db->quote('') . ' AS created, a.link AS text')
-			->select($case_when)
-			->select($case_when1)
+			->select($caseWhen)
+			->select($caseWhen1)
 			->select($query->concatenate(array($db->quote($searchNewsfeeds), 'c.title'), ' / ') . ' AS section')
 			->select($db->quote('1') . ' AS browsernav')
 			->from($db->quoteName('#__newsfeeds', 'a'))
 			->innerJoin($db->quoteName('#__categories', 'c') . ' ON c.id = a.catid')
-			->where('(' . $where . ') AND a.published IN (' . implode(',', $state) . ') AND c.published = 1 AND c.access IN (' . $groups . ')')
+			->where('(' . $where . ')')
+			->whereIn($db->quoteName('a.published'), $state)
+			->where($db->quoteName('c.published') .' = 1')
+			->whereIn($db->quoteName('c.access'), $groups)
 			->order($order);
 
 		// Filter by language.
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$tag = Factory::getLanguage()->getTag();
-			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')
-				->where('c.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')');
+			$languages = [Factory::getLanguage()->getTag(), '*'];
+			$query->whereIn($db->quoteName('a.language'), $languages, ParameterType::STRING)
+				->whereIn($db->quoteName('c.language'), $languages, ParameterType::STRING);
 		}
 
 		$db->setQuery($query, 0, $limit);
