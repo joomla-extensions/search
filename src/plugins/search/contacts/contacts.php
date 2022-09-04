@@ -9,7 +9,6 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -181,7 +180,7 @@ class PlgSearchContacts extends CMSPlugin
 		// Filter by language.
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$languages = [Factory::getLanguage()->getTag(), '*'];
+			$languages = [$app->getLanguage()->getTag(), '*'];
 			$query->whereIn($db->quoteName('a.language'), $languages, ParameterType::STRING)
 				->whereIn($db->quoteName('c.language'), $languages, ParameterType::STRING);
 		}

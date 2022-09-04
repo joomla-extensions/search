@@ -9,7 +9,6 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -185,7 +184,7 @@ class PlgSearchCategories extends CMSPlugin
 
 		if ($app->isClient('site') && Multilanguage::isEnabled())
 		{
-			$query->whereIn($db->quoteName('a.language'), [Factory::getLanguage()->getTag(), '*'], ParameterType::STRING);
+			$query->whereIn($db->quoteName('a.language'), [$app->getLanguage()->getTag(), '*'], ParameterType::STRING);
 		}
 
 		$db->setQuery($query, 0, $limit);
