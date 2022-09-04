@@ -30,7 +30,7 @@ $upper_limit = $lang->getUpperLimitSearchWord();
 		</div>
 		<input type="hidden" name="task" value="search">
 	</div>
-	<div class="form-group searchintro<?php echo $this->params->get('pageclass_sfx'); ?>">
+	<div class="form-group searchintro<?php echo $this->params->get('pageclass_sfx', ''); ?>">
 		<?php if (!empty($this->searchword)) : ?>
 			<p>
 				<?php echo Text::plural('COM_SEARCH_SEARCH_KEYWORD_N_RESULTS', '<span class="badge badge-info">' . $this->total . '</span>'); ?>
