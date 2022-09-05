@@ -2,19 +2,18 @@
 <extension version="3.1" type="plugin" group="search" method="upgrade">
 	<name>plg_search_tags</name>
 	<author>Joomla! Project</author>
-	<creationDate>March 2014</creationDate>
-	<copyright>Copyright (C) 2005 - 2019 Open Source Matters. All rights reserved.</copyright>
+	<creationDate>##DATE##</creationDate>
+	<copyright>Copyright (C) 2005 - ##YEAR## Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.0.0</version>
+	<version>##VERSION##</version>
 	<description>PLG_SEARCH_TAGS_XML_DESCRIPTION</description>
 	<files>
-		<filename plugin="tags">tags.php</filename>
+		##FILES##
 	</files>
-	<languages>
-		<language tag="en-GB">en-GB.plg_search_tags.ini</language>
-		<language tag="en-GB">en-GB.plg_search_tags.sys.ini</language>
+	<languages folder="language">
+		##LANGUAGE_FILES##
 	</languages>
 	<config>
 		<fields name="params">

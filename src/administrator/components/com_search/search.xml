@@ -2,12 +2,12 @@
 <extension type="component" version="4.0" method="upgrade">
 	<name>com_search</name>
 	<author>Joomla! Project</author>
-	<creationDate>April 2006</creationDate>
-	<copyright>(C) 2005 - 2019 Open Source Matters. All rights reserved.</copyright>
+	<creationDate>##DATE##</creationDate>
+	<copyright>(C) 2005 - ##YEAR## Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>4.0.0</version>
+	<version>##VERSION##</version>
 	<description>COM_SEARCH_XML_DESCRIPTION</description>
 	<namespace>Joomla\Component\Search</namespace>
 	<install>
@@ -23,34 +23,18 @@
 		</sql>
 	</uninstall>
 	<files folder="components/com_search">
-		<filename>router.php</filename>		
-		<folder>Controller</folder>
-		<folder>Model</folder>
-		<folder>tmpl</folder>
-		<folder>View</folder>
+		##FRONTEND_COMPONENT_FILES##
 	</files>
 	<languages folder="language">
-		<language tag="en-GB">en-GB/com_search.ini</language>
+		##FRONTEND_LANGUAGE_FILES##
 	</languages>
 	<administration>
 		<menu link="option=com_search">Search</menu>
-		<files folder="admin">
-			<filename>access.xml</filename>
-			<filename>config.xml</filename>
-			<filename>search.xml</filename>
-			<folder>Controller</folder>
-			<folder>forms</folder>
-			<folder>Helper</folder>
-			<folder>helpers</folder>
-			<folder>Model</folder>
-			<folder>services</folder>
-			<folder>tmpl</folder>
-			<folder>View</folder>
-			<folder>views</folder>
+		<files folder="administrator/components/com_search">
+			##BACKEND_COMPONENT_FILES##
 		</files>
-		<languages folder="administrator/components/com_search">
-			<language tag="en-GB">en-GB/com_search.ini</language>
-			<language tag="en-GB">en-GB/com_search.sys.ini</language>
+		<languages folder="administrator/language">
+			##BACKEND_LANGUAGE_FILES##
 		</languages>
 	</administration>
 </extension>
