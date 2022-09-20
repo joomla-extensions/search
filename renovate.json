@@ -9,6 +9,7 @@
   "dependencyDashboard": true,
   "composerIgnorePlatformReqs": ["ext-*", "lib-*"],
   "rangeStrategy": "bump",
+  "baseBranches": ["main", "4.0-dev"],
   "constraints": {
     "composer": "> 2.3",
     "npm": "> 8.0"
