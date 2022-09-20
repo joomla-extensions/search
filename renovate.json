@@ -7,12 +7,10 @@
   ],
   "versioning": "semver",
   "dependencyDashboard": true,
-  "lockFileMaintenance": {
-    "enabled": true
-  },
-  "composerIgnorePlatformReqs": [
-    "ext-*",
-    "lib-*"
-  ],
-  "rangeStrategy": "update-lockfile"
+  "composerIgnorePlatformReqs": ["ext-*", "lib-*"],
+  "rangeStrategy": "bump",
+  "constraints": {
+    "composer": "> 2.3",
+    "npm": "> 8.0"
+  }
 }
