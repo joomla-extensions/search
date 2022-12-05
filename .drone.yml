@@ -10,7 +10,7 @@ steps:
 - name: setup
   image: docker:git
   commands:
-    - git clone --branch 4.0-dev https://github.com/joomla/joomla-cms.git
+    - git clone --branch 4.2-dev https://github.com/joomla/joomla-cms.git
 
 - name: phpcs
   image: joomlaprojects/docker-phpcs
