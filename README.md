@@ -1,4 +1,4 @@
-# Search for Joomla! Travis:
+# Search for Joomla!
 
 [![Build Status](https://ci.joomla.org/api/badges/joomla-extensions/search/status.svg?branch=4.0-dev)](https://ci.joomla.org/joomla-extensions/search)
 
