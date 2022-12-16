@@ -58,7 +58,7 @@ $listDirn = $this->escape($this->state->get('list.direction'));
 					<?php if ($this->state->get('show_results')) : ?>
 					<td class="text-center btns">
 						<a class="badge <?php echo $item->returns > 0 ? ' bg-success' : ' bg-secondary'; ?>" target="_blank" href="<?php echo Uri::root(); ?>index.php?option=com_search&amp;view=search&amp;searchword=<?php echo JFilterOutput::stringURLSafe($item->search_term); ?>">
-							<?php echo $item->returns; ?><span class="icon-out-2" aria-hidden="true"><span class="sr-only"><?php echo Text::_('JBROWSERTARGET_NEW'); ?></span></span></a>
+							<?php echo $item->returns; ?></a>
 					</td>
 					<?php else : ?>
 					<td class="text-center">
