@@ -23,7 +23,7 @@
         "codeception/codeception": "^4.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "consolidation/robo": "^1.0.0",
-        "joomla-projects/jorobo": "^0.8.0",
+        "joomla-projects/jorobo": "^0.8.2",
         "joomla-projects/joomla-testing-robo": "~1.0"
     }
 }

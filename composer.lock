@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "78432f46158eda9aa3c539000f295046",
+    "content-hash": "b3cbe55bc0f9e3c179b45f83c335c0a1",
     "packages": [],
     "packages-dev": [
         {
@@ -1967,16 +1967,16 @@
         },
         {
             "name": "joomla-projects/jorobo",
-            "version": "0.8.0",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/joomla-projects/jorobo.git",
-                "reference": "8c780d561704e5e9c0cc8bd1f74b3b88a358be7b"
+                "reference": "61e3b08a18b37ac67dddfa25493d33fda185c4e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joomla-projects/jorobo/zipball/8c780d561704e5e9c0cc8bd1f74b3b88a358be7b",
-                "reference": "8c780d561704e5e9c0cc8bd1f74b3b88a358be7b",
+                "url": "https://api.github.com/repos/joomla-projects/jorobo/zipball/61e3b08a18b37ac67dddfa25493d33fda185c4e1",
+                "reference": "61e3b08a18b37ac67dddfa25493d33fda185c4e1",
                 "shasum": ""
             },
             "require": {
@@ -2016,9 +2016,9 @@
             "description": "Tools and Tasks based on Robo.li for Joomla Extension Development and Releases",
             "support": {
                 "issues": "https://github.com/joomla-projects/jorobo/issues",
-                "source": "https://github.com/joomla-projects/jorobo/tree/0.8.0"
+                "source": "https://github.com/joomla-projects/jorobo/tree/0.8.2"
             },
-            "time": "2023-01-31T20:16:35+00:00"
+            "time": "2023-01-31T21:11:12+00:00"
         },
         {
             "name": "joomla/cms-coding-standards",
