@@ -14,7 +14,7 @@ use Joomla\CMS\Installer\InstallerScript;
 /**
  * Installation class to perform additional changes during install/uninstall/update
  *
- * @since  __DEPLOY_VERSION__
+ * @since  4.1.0
  */
 class Pkg_SearchInstallerScript extends InstallerScript
 {
@@ -23,7 +23,7 @@ class Pkg_SearchInstallerScript extends InstallerScript
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   4.1.0
 	 */
 	public function __construct()
 	{
