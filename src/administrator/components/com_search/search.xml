@@ -9,7 +9,7 @@
 	<authorUrl>www.joomla.org</authorUrl>
 	<version>##VERSION##</version>
 	<description>COM_SEARCH_XML_DESCRIPTION</description>
-	<namespace>Joomla\Component\Search</namespace>
+	<namespace path="src">Joomla\Component\Search</namespace>
 	<install>
 		<sql>
 			<file charset="utf8" driver="mysql">sql/install.mysql.sql</file>

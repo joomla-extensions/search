@@ -7,6 +7,8 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+namespace Joomla\Component\Search\Site\Service\Router;
+
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Component\Router\RouterBase;
