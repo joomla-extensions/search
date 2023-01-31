@@ -23,7 +23,7 @@ class SearchesController extends BaseController
 	/**
 	 * Method to reset the search log table.
 	 *
-	 * @return  boolean
+	 * @return  void
 	 */
 	public function reset()
 	{
@@ -43,7 +43,7 @@ class SearchesController extends BaseController
 	/**
 	 * Method to toggle the view of results.
 	 *
-	 * @return  boolean
+	 * @return  void
 	 */
 	public function toggleResults()
 	{
