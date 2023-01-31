@@ -346,12 +346,12 @@ class RoboFile extends Tasks
 		}
 
 		// Copy current package
-		if (!file_exists('dist/pkg-weblinks-current.zip'))
+		if (!file_exists('dist/pkg-search-current.zip'))
 		{
 			$this->build(true);
 		}
 
-		$this->_copy('dist/pkg-weblinks-current.zip', $this->cmsPath . "/pkg-weblinks-current.zip");
+		$this->_copy('dist/pkg-search-current.zip', $this->cmsPath . "/pkg-search-current.zip");
 
 		$this->say('Joomla CMS site created at ' . $this->cmsPath);
 
@@ -686,7 +686,7 @@ class RoboFile extends Tasks
 	}
 
 	/**
-	 * Update Version __DEPLOY_VERSION__ in Weblinks. (Set the version up in the jorobo.ini)
+	 * Update Version __DEPLOY_VERSION__ in Search. (Set the version up in the jorobo.ini)
 	 *
 	 * @return  void
 	 */
