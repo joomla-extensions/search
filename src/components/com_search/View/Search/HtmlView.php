@@ -306,7 +306,7 @@ class HtmlView extends BaseHtmlView
 	 */
 	public function highLight($string, $needle, $searchWords)
 	{
-		$hl1            = '<span class="highlight">';
+		$hl1            = '<span class="mark">';
 		$hl2            = '</span>';
 		$mbString       = extension_loaded('mbstring');
 		$highlighterLen = strlen($hl1 . $hl2);
