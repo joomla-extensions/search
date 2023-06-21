@@ -22,6 +22,7 @@
 	<administration>
 		<menu link="option=com_search" img="class:search">Search</menu>
 		<files folder="admin">
+			<filename>access.xml</filename>
 			<filename>config.xml</filename>
 			<filename>controller.php</filename>
 			<filename>search.php</filename>
