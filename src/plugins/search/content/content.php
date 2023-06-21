@@ -410,20 +410,11 @@ class PlgSearchContent extends CMSPlugin
 				$app->enqueueMessage(Text::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
 			}
 
-			// Find an itemid for archived to use if there isn't another one.
-			$item = $app->getMenu()->getItems('link', 'index.php?option=com_content&view=archive', true);
-			$itemid = isset($item->id) ? '&Itemid=' . $item->id : '';
-
 			if (isset($list3))
 			{
 				foreach ($list3 as $key => $item)
 				{
-					$date = Factory::getDate($item->created);
-
-					$created_month = $date->format('n');
-					$created_year = $date->format('Y');
-
-					$list3[$key]->href = Route::_('index.php?option=com_content&view=archive&year=' . $created_year . '&month=' . $created_month . $itemid);
+                    $list3[$key]->href = ContentHelperRoute::getArticleRoute($item->slug, $item->catid, $item->language);
 				}
 			}
 

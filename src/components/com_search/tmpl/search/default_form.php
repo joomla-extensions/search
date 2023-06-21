@@ -20,6 +20,9 @@ $upper_limit = $lang->getUpperLimitSearchWord();
 <form id="searchForm" action="<?php echo Route::_('index.php?option=com_search'); ?>" method="post">
 	<div class="form-group">
 		<div class="input-group">
+            <label for="search-searchword" class="sr-only">
+                <?php echo Text::_('COM_SEARCH_SEARCH_KEYWORD'); ?>
+            </label>
 			<input type="text" name="searchword" placeholder="<?php echo Text::_('COM_SEARCH_SEARCH_KEYWORD'); ?>" id="search-searchword" maxlength="<?php echo $upper_limit; ?>" value="<?php echo $this->escape($this->origkeyword); ?>" class="form-control">
 			<div class="input-group-append">
 				<button name="Search" onclick="this.form.submit()" class="btn btn-secondary">

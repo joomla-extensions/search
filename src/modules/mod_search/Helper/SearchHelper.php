@@ -29,8 +29,8 @@ class SearchHelper
 	 *
 	 * @since   1.5
 	 */
-	public static function getSearchImage($button_text)
+	public static function getSearchImage()
 	{
-		return HTMLHelper::_('image', 'searchButton.gif', $button_text, null, true, true);
+		return HTMLHelper::_('image', 'searchButton.gif', '', null, true, true);
 	}
 }

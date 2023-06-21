@@ -42,7 +42,7 @@ $label       = htmlspecialchars($params->get('label', Text::_('MOD_SEARCH_LABEL_
 
 if ($imagebutton)
 {
-	$img = SearchHelper::getSearchImage($button_text);
+	$img = SearchHelper::getSearchImage();
 }
 
 require ModuleHelper::getLayoutPath('mod_search', $params->get('layout', 'default'));
