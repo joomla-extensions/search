@@ -13,6 +13,7 @@
 	<version>##VERSION##</version>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<scriptfile>script.php</scriptfile>
+	<description>PKG_SEARCH_XML_DESCRIPTION</description>
 	<files>
 		<!-- The id for each extension is the element stored in the DB -->
 		<file type="component" id="com_search">com_search.zip</file>
